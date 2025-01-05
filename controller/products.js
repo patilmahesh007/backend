@@ -23,5 +23,29 @@ const postProducts = async (req, res) => {
         return res.status(500).json({ message: "Error adding product" });
     }
 
-}       
-export { postProducts };
+}     
+
+const getProducts = async (req, res) => {
+    try {
+        const { limit = 1, search } = req.query;
+
+        const query = search
+            ? { $or: [
+                { name: { $regex: search, $options: "i" } },
+                { shortDescription: { $regex: search, $options: "i" } },
+                { longDescription: { $regex: search, $options: "i" } },
+                { tags: { $regex: search, $options: "i" } }
+            ] }
+            : {};
+
+        const products = await ProductModel.find(query).limit(Number(limit));
+
+        return res.json(products);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Error fetching products" });
+    }
+};
+
+
+export { postProducts ,getProducts};

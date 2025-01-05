@@ -23,13 +23,14 @@ const postSign = async (req, res) => {
          if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
     }
-    const newUser = new Signup({ email,role:"user" ,password: await bcrypt.hashSync(password, 10) });
+    const newUser = new Signup({ email,password: await bcrypt.hashSync(password, 10) });
     await newUser.save();
 
     res.status(201).json({
       message: "User registered successfully",
       email: newUser.email,
-      password: newUser.password
+      password: newUser.password,
+      role: newUser.role
     });
   }
   catch (err) {
@@ -51,7 +52,7 @@ const postLogin = async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    const jwtToken = jwt.sign({ email: user.email ,role:"admin"}, process.env.JWT_SECRET);
+    const jwtToken = jwt.sign({ email: user.email ,role:user.role,_id:user._id}, process.env.JWT_SECRET);
 
     res.setHeader("Authorization", `Bearer ${jwtToken}`);
     return res.status(200).json({

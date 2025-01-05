@@ -11,60 +11,26 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
-import Signup from "./models/signup.model.js";
 import {postSign,postLogin} from "./controller/signup.js";
-import{postProducts} from "./controller/products.js";
+import{postProducts,getProducts} from "./controller/products.js";
 
 import{jwtmiddleware,checkRoleMiddleware} from "./middlewares/jwt.js";
+import {postOrders} from "./controller/orders.js";
 
 
 
-app.get("/test", async (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Invalid or missing token" });
-  }
 
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await Signup.findOne({ email: decoded.email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const { email, name, createdAt } = user;
-    return res.status(200).json({
-      message: "User found",
-      user: { email, name, createdAt },
-    });
-  } catch (err) {
-    if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token expired" });
-    }
-    if (err.name === "JsonWebTokenError") {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-    console.error(err);
-    return res.status(500).json({ message: "Error verifying token" });
-  }
-});
 
 
 
 app.post("/register",postSign );
 app.post("/login",postLogin );
-
-
-
-app.post("/order",jwtmiddleware,async (req, res) => {
-  res.json({ message: "Order placed werfg" ,user:req.user});
-})
-
-
+app.post("/order",jwtmiddleware,postOrders)
 app.post("/products",jwtmiddleware,checkRoleMiddleware,postProducts);
+
+app.get("/products",getProducts)
+
+
 const uri = process.env.URI;
 
 const connectDB = async () => {
