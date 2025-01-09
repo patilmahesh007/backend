@@ -23,7 +23,7 @@ const postSign = async (req, res) => {
          if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
     }
-    const newUser = new Signup({ email,password: await bcrypt.hashSync(password, 10) });
+    const newUser = new Signup({ email,  });
     await newUser.save();
 
     res.status(201).json({

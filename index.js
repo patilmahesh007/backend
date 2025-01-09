@@ -13,22 +13,20 @@ app.use(express.json());
 
 import {postSign,postLogin} from "./controller/signup.js";
 import{postProducts,getProducts} from "./controller/products.js";
-
 import{jwtmiddleware,checkRoleMiddleware} from "./middlewares/jwt.js";
-import {postOrders} from "./controller/orders.js";
-
-
-
+import {postOrders,putOrders} from "./controller/orders.js";
 
 
 
 
 app.post("/register",postSign );
 app.post("/login",postLogin );
-app.post("/order",jwtmiddleware,postOrders)
-app.post("/products",jwtmiddleware,checkRoleMiddleware,postProducts);
 
+app.post("/products",jwtmiddleware,checkRoleMiddleware,postProducts);
 app.get("/products",getProducts)
+
+app.post("/order",jwtmiddleware,postOrders)
+app.put("/order/:id",jwtmiddleware,putOrders);
 
 
 const uri = process.env.URI;
